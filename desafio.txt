@@ -1,0 +1,39 @@
+Subir o código para o GitHub e enviar a URL do repositório.
+ 
+Tecnologias obrigatórias:
+- Flask
+- SQLAlchemy
+ 
+Um crud de rede social onde vão ter usuários e posts(somente textos). 
+A unica ação que o usuário deve conseguir realizar sem estar logado é criar uma conta.
+ 
+ 
+CRIAR UMA API COM AS SEGUINTES CONFIGURAÇÕES
+Controller de autenticação com: 
+- Login
+ 
+Controller de usuário com:
+- Criação de usuário
+- Edição de usuário 
+- Buscar usuário por id
+- Listar usuários
+- Deletar usuário
+ 
+Controller de posts com:
+- Criação de post
+- Edição de post
+- Buscar post por id
+- Listar todos os posts (trazer em cada post o autor: id do usuário, nome do usuário) 
+- Listar posts por id de usuário
+- Deletar post
+ 
+Criar a regra de que somente usuários administradores podem:
+- Editar um usuário sem ser o dele
+- Deletar um usuário sem ser o dele
+- Editar um post sem ser o dele
+- Deletar um post sem ser o dele
+ 
+Desejável:
+Testes Automatizados
+Rodar a aplicação no Docker
+Documentação com Swagger
