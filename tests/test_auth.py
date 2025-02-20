@@ -1,22 +1,31 @@
 import pytest
-from app import app, db
-from models.user import User
+from app import create_app 
+from models import db       
 import bcrypt
+from models.user import User
 
 @pytest.fixture
 def client():
-    app.config['TESTING'] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-    with app.test_client() as client:
-        with app.app_context():
+    flask_app = create_app()
+    flask_app.config['TESTING'] = True
+    flask_app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+
+    with flask_app.test_client() as client:
+        with flask_app.app_context():
             db.create_all()
             # Cria usuário para teste
-            password_hash = bcrypt.hashpw("test123".encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+            password_hash = bcrypt.hashpw(
+                "test123".encode('utf-8'), 
+                bcrypt.gensalt()
+            ).decode('utf-8')
             user = User(username="testuser", password=password_hash)
             db.session.add(user)
             db.session.commit()
+
         yield client
-        with app.app_context():
+
+        # Após os testes, dropar as tabelas
+        with flask_app.app_context():
             db.drop_all()
 
 def test_login_success(client):
