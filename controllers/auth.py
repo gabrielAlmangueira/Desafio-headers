@@ -6,6 +6,28 @@ auth_bp = Blueprint('auth_bp', __name__)
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
+    """
+    Login de usuário
+    ---
+    tags:
+      - Autenticação
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          properties:
+            username:
+              type: string
+            password:
+              type: string
+    responses:
+      200:
+        description: Logged in successfully
+      401:
+        description: Invalid credentials
+    """
     data = request.get_json()
     username = data.get('username')
     password = data.get('password').encode('utf-8')
@@ -20,5 +42,14 @@ def login():
 
 @auth_bp.route('/logout', methods=['POST'])
 def logout():
+    """
+    Logout de usuário
+    ---
+    tags:
+      - Autenticação
+    responses:
+      200:
+        description: Logged out
+    """
     session.clear()
     return jsonify({'message': 'Logged out'}), 200
