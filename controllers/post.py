@@ -7,6 +7,26 @@ post_bp = Blueprint('post_bp', __name__)
 
 @post_bp.route('/posts', methods=['POST'])
 def create_post():
+    """
+    Cria um post para o usuário logado
+    ---
+    tags:
+      - Posts
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          properties:
+            content:
+              type: string
+    responses:
+      201:
+        description: Post created successfully
+      401:
+        description: Login required
+    """
     if 'user_id' not in session:
         return jsonify({'message': 'Login required'}), 401
     
@@ -18,6 +38,33 @@ def create_post():
 
 @post_bp.route('/posts/<int:post_id>', methods=['PUT'])
 def edit_post(post_id):
+    """
+    Edita um post existente (apenas autor ou admin)
+    ---
+    tags:
+      - Posts
+    parameters:
+      - in: path
+        name: post_id
+        required: true
+        type: integer
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            content:
+              type: string
+    responses:
+      200:
+        description: Post updated successfully
+      401:
+        description: Login required
+      403:
+        description: Permission denied
+      404:
+        description: Post not found
+    """
     if 'user_id' not in session:
         return jsonify({'message': 'Login required'}), 401
     
