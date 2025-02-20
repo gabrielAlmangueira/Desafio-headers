@@ -7,6 +7,26 @@ user_bp = Blueprint('user_bp', __name__)
 
 @user_bp.route('/users', methods=['POST'])
 def create_user():
+    """
+    Cria um novo usuário
+    ---
+    tags:
+      - Usuários
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          properties:
+            username:
+              type: string
+            password:
+              type: string
+    responses:
+      201:
+        description: User created successfully
+    """
     data = request.get_json()
     hashed_pw = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     new_user = User(username=data['username'], password=hashed_pw)
@@ -16,6 +36,22 @@ def create_user():
 
 @user_bp.route('/users/<int:user_id>', methods=['GET'])
 def get_user(user_id):
+    """
+    Busca um usuário pelo ID
+    ---
+    tags:
+      - Usuários
+    parameters:
+      - in: path
+        name: user_id
+        type: integer
+        required: true
+    responses:
+      200:
+        description: Retorna o objeto do usuário
+      404:
+        description: Usuário não encontrado
+    """
     user = User.query.get_or_404(user_id)
     return jsonify({'id': user.id, 'username': user.username, 'is_admin': user.is_admin})
 
