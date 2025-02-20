@@ -2,10 +2,12 @@ import os
 from flask import Flask
 from flasgger import Swagger
 from models import db
+from flask_migrate import Migrate
 
 def init_extensions(app):
     # Inicializa o SQLAlchemy
     db.init_app(app)
+    Migrate(app, db)
     
     swagger_config = {
         "headers": [],
