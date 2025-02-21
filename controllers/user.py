@@ -124,7 +124,6 @@ def edit_user(user_id):
 
     user_to_edit = User.query.get_or_404(user_id)
     
-    # Substituindo User.query.get pela nova forma
     current_user = db.session.get(User, session['user_id'])
     
     if current_user.id != user_to_edit.id and not current_user.is_admin:
