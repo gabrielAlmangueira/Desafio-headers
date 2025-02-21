@@ -108,10 +108,10 @@ def test_edit_post_by_author_success(client):
     assert response.status_code == 200
     assert b"Post updated successfully" in response.data
     with client.application.app_context():
-        updated_post = Post.query.get(post.id)
+        updated_post = db.session.get(Post, post.id)
         assert updated_post.content == "Post editado"
 
-def test_edit_post_by_non_author_forbidden(client):
+def test_edit_post_by_admin_success(client):
     # user1 cria um post e admin tenta editar, mas admin tem permissão
     login_as(client, "user1")
     client.post("/posts", json={"content": "Post de user1"})
@@ -126,6 +126,36 @@ def test_edit_post_by_non_author_forbidden(client):
     assert response.status_code == 200
     assert b"Post updated successfully" in response.data
 
+def test_edit_post_by_non_author_forbidden(client):
+    # Cria um post com user1
+    login_as(client, "user1")
+    response = client.post("/posts", json={"content": "Post de user1"})
+    assert response.status_code == 201
+    
+    with client.application.app_context():
+        post = Post.query.first()
+        assert post is not None
+
+    # Certifica que existe um usuário não administrador, diferente de user1
+    with client.application.app_context():
+        from models.user import User
+        user2 = User.query.filter_by(username="user2").first()
+        if not user2:
+            import bcrypt
+            password = bcrypt.hashpw("user2pass".encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+            user2 = User(username="user2", password=password, is_admin=False)
+            db.session.add(user2)
+            db.session.commit()
+
+    # Agora, login com user2 (não autor do post) e tenta editar o post de user1
+    login_as(client, "user2")
+    payload = {"content": "Tentativa de edição não autorizada"}
+    response = client.put(f"/posts/{post.id}", json=payload)
+    
+    # Verifica que a edição é negada com status 403 e mensagem de permissão negada
+    assert response.status_code == 403
+    assert b"Permission denied" in response.data
+
 def test_delete_post_by_author_success(client):
     login_as(client, "user1")
     client.post("/posts", json={"content": "Post para deleção"})
@@ -135,7 +165,7 @@ def test_delete_post_by_author_success(client):
     assert response.status_code == 200
     assert b"Post deleted successfully" in response.data
     with client.application.app_context():
-        deleted_post = Post.query.get(post.id)
+        deleted_post = db.session.get(Post, post.id)
         assert deleted_post is None
 
 def test_delete_post_by_non_author_forbidden(client):
@@ -170,5 +200,5 @@ def test_delete_post_by_admin_success(client):
     assert response.status_code == 200
     assert b"Post deleted successfully" in response.data
     with client.application.app_context():
-        deleted_post = Post.query.get(post.id)
+        deleted_post = db.session.get(Post, post.id)
         assert deleted_post is None
