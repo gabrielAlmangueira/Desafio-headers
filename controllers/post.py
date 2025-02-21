@@ -120,7 +120,7 @@ def get_post(post_id):
     
     post = Post.query.get_or_404(post_id)
     # Obter dados do autor
-    author = User.query.get(post.user_id)
+    author = db.session.get(User, post.user_id)
     response = {
         'id': post.id,
         'content': post.content,
@@ -166,7 +166,7 @@ def list_posts():
     posts = Post.query.all()
     posts_list = []
     for post in posts:
-        author = User.query.get(post.user_id)
+        author = db.session.get(User, post.user_id)
         posts_list.append({
             'id': post.id,
             'content': post.content,
@@ -210,7 +210,7 @@ def list_posts_by_user(user_id):
         return jsonify({'message': 'Login required'}), 401
 
     # Certifica que o usuário existe
-    user = User.query.get_or_404(user_id)
+    User.query.get_or_404(user_id)
     posts = Post.query.filter_by(user_id=user_id).all()
     posts_list = [{'id': post.id, 'content': post.content} for post in posts]
     return jsonify(posts_list), 200
