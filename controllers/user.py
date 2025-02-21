@@ -26,8 +26,16 @@ def create_user():
     responses:
       201:
         description: User created successfully
+      400:
+        description: User already exists
     """
     data = request.get_json()
+    # Verifica se já existe um usuário com mesmo username
+    existing_user = User.query.filter_by(username=data['username']).first()
+    if existing_user:
+        return jsonify({'message': 'User already exists'}), 400
+
+    # Cria o usuário
     hashed_pw = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     new_user = User(username=data['username'], password=hashed_pw)
     db.session.add(new_user)
@@ -37,7 +45,7 @@ def create_user():
 @user_bp.route('/users/<int:user_id>', methods=['GET'])
 def get_user(user_id):
     """
-    Busca um usuário pelo ID
+    Busca um usuário pelo ID (acesso permitido somente para usuários logados)
     ---
     tags:
       - Usuários
@@ -49,9 +57,14 @@ def get_user(user_id):
     responses:
       200:
         description: Retorna o objeto do usuário
+      401:
+        description: Login required
       404:
         description: Usuário não encontrado
     """
+    if 'user_id' not in session:
+        return jsonify({'message': 'Login required'}), 401
+
     user = User.query.get_or_404(user_id)
     return jsonify({'id': user.id, 'username': user.username, 'is_admin': user.is_admin})
 
