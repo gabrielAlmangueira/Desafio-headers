@@ -5,5 +5,7 @@ services:
       - "5000:5000"
     environment:
       - FLASK_ENV=development
-      - DATABASE_URI=sqlite:///mydb.db
+      - DATABASE_URI=sqlite:///socialmedia.db
       - SECRET_KEY=SUA_CHAVE_SECRETA
+    volumes:
+      - ./instance:/app/instance
